@@ -1,6 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import type React from "react"
+
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { isAuthenticated } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -9,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Upload, X, ImageIcon } from "lucide-react"
 
 export default function NewPost() {
   const [title, setTitle] = useState("")
@@ -17,7 +19,12 @@ export default function NewPost() {
   const [excerpt, setExcerpt] = useState("")
   const [published, setPublished] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [coverImage, setCoverImage] = useState<string | null>(null)
+  const [additionalImages, setAdditionalImages] = useState<string[]>([])
   const router = useRouter()
+
+  const coverImageInputRef = useRef<HTMLInputElement>(null)
+  const additionalImagesInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -34,7 +41,46 @@ export default function NewPost() {
       .trim()
   }
 
-  const handleSave = () => {
+  const handleFileUpload = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      try {
+        const base64 = await handleFileUpload(file)
+        setCoverImage(base64)
+      } catch (error) {
+        alert("Error al subir la imagen")
+      }
+    }
+  }
+
+  const handleAdditionalImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      try {
+        const base64Images = await Promise.all(files.map(handleFileUpload))
+        setAdditionalImages((prev) => [...prev, ...base64Images])
+      } catch (error) {
+        alert("Error al subir las imágenes")
+      }
+    }
+  }
+
+  const removeAdditionalImage = (index: number) => {
+    setAdditionalImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSave = async () => {
+    console.log("[v0] Attempting to save post with data:", { title, content, excerpt, published })
+
     if (!title.trim() || !content.trim()) {
       alert("Por favor completa el título y contenido")
       return
@@ -42,24 +88,36 @@ export default function NewPost() {
 
     setIsLoading(true)
 
-    const newPost = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      content: content.trim(),
-      excerpt: excerpt.trim() || content.substring(0, 150) + "...",
-      slug: generateSlug(title),
-      published,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    try {
+      const response = await fetch("/api/blog", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          excerpt: excerpt.trim() || content.substring(0, 150) + "...",
+          published,
+          coverImage,
+          additionalImages,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        alert(result.error || "Error al crear el post")
+        return
+      }
+
+      router.push("/admin/posts")
+    } catch (error) {
+      console.error("[v0] Error creating post:", error)
+      alert("Error al crear el post")
+    } finally {
+      setIsLoading(false)
     }
-
-    // Save to localStorage
-    const existingPosts = JSON.parse(localStorage.getItem("blogPosts") || "[]")
-    existingPosts.push(newPost)
-    localStorage.setItem("blogPosts", JSON.stringify(existingPosts))
-
-    setIsLoading(false)
-    router.push("/admin/posts")
   }
 
   return (
@@ -130,11 +188,114 @@ export default function NewPost() {
                   <Textarea
                     id="content"
                     value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    onChange={(e) => {
+                      console.log("[v0] Content changing:", e.target.value.length, "characters")
+                      setContent(e.target.value)
+                    }}
+                    onFocus={() => console.log("[v0] Content textarea focused")}
+                    onBlur={() => console.log("[v0] Content textarea blurred")}
                     placeholder="Escribe aquí el contenido completo del post..."
                     rows={15}
                     className="min-h-[400px]"
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Image Uploads */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Imágenes y Archivos</CardTitle>
+                <CardDescription>Sube la imagen de portada y fotos adicionales</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Cover Image Upload */}
+                <div className="space-y-3">
+                  <Label>Imagen de Portada</Label>
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors cursor-pointer"
+                    onClick={() => coverImageInputRef.current?.click()}
+                  >
+                    {coverImage ? (
+                      <div className="relative">
+                        <img
+                          src={coverImage || "/placeholder.svg"}
+                          alt="Portada"
+                          className="max-h-48 mx-auto rounded-lg object-cover"
+                        />
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setCoverImage(null)
+                          }}
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                        <p className="text-sm text-gray-600">Haz clic para subir imagen de portada</p>
+                        <p className="text-xs text-gray-400">PNG, JPG hasta 5MB</p>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={coverImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverImageUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Additional Images Upload */}
+                <div className="space-y-3">
+                  <Label>Imágenes Adicionales</Label>
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors cursor-pointer"
+                    onClick={() => additionalImagesInputRef.current?.click()}
+                  >
+                    <div className="space-y-2">
+                      <ImageIcon className="h-6 w-6 mx-auto text-gray-400" />
+                      <p className="text-sm text-gray-600">Subir múltiples imágenes</p>
+                      <p className="text-xs text-gray-400">Selecciona varias imágenes a la vez</p>
+                    </div>
+                  </div>
+                  <input
+                    ref={additionalImagesInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleAdditionalImagesUpload}
+                    className="hidden"
+                  />
+
+                  {/* Display Additional Images */}
+                  {additionalImages.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      {additionalImages.map((image, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={image || "/placeholder.svg"}
+                            alt={`Imagen ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <Button
+                            onClick={() => removeAdditionalImage(index)}
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
