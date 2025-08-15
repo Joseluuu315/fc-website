@@ -6,11 +6,17 @@ import { isAuthenticated, getAdminUser, logout } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PlusCircle, FileText, Users, Settings, LogOut, BarChart3 } from "lucide-react"
+import { PlusCircle, FileText, Users, LogOut, BarChart3 } from "lucide-react"
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<string | null>(null)
   const [posts, setPosts] = useState<any[]>([])
+  const [players, setPlayers] = useState<any[]>([])
+  const [visitStats, setVisitStats] = useState({
+    visits_this_month: 0,
+    visits_today: 0,
+    total_visits: 0,
+  })
   const router = useRouter()
 
   useEffect(() => {
@@ -21,11 +27,34 @@ export default function AdminDashboard() {
 
     setUser(getAdminUser())
 
-    // Load existing posts from localStorage
-    const savedPosts = localStorage.getItem("blogPosts")
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts))
+    const fetchData = async () => {
+      try {
+        // Obtener posts
+        const postsResponse = await fetch("/api/blog")
+        if (postsResponse.ok) {
+          const postsData = await postsResponse.json()
+          setPosts(postsData)
+        }
+
+        // Obtener jugadores
+        const playersResponse = await fetch("/api/players")
+        if (playersResponse.ok) {
+          const playersData = await playersResponse.json()
+          setPlayers(playersData)
+        }
+
+        // Obtener estadísticas de visitas
+        const visitsResponse = await fetch("/api/visits")
+        if (visitsResponse.ok) {
+          const visitsData = await visitsResponse.json()
+          setVisitStats(visitsData)
+        }
+      } catch (error) {
+        console.log("[v0] Error fetching dashboard data:", error)
+      }
     }
+
+    fetchData()
   }, [router])
 
   const handleLogout = () => {
@@ -86,7 +115,7 @@ export default function AdminDashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">22</div>
+              <div className="text-2xl font-bold text-blue-600">{players.length}</div>
               <p className="text-xs text-muted-foreground">Plantilla actual</p>
             </CardContent>
           </Card>
@@ -97,8 +126,12 @@ export default function AdminDashboard() {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">1,234</div>
+              <div className="text-2xl font-bold text-purple-600">{visitStats.visits_this_month.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">Este mes</p>
+              <div className="mt-2 text-sm text-gray-600">
+                <div>Hoy: {visitStats.visits_today}</div>
+                <div>Total: {visitStats.total_visits.toLocaleString()}</div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -129,17 +162,22 @@ export default function AdminDashboard() {
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Settings className="h-5 w-5 text-blue-600" />
-                <span>Configuración</span>
+                <Users className="h-5 w-5 text-blue-600" />
+                <span>Gestión de Jugadores</span>
               </CardTitle>
-              <CardDescription>Administrar jugadores, categorías y configuración del sitio</CardDescription>
+              <CardDescription>
+                Administrar plantilla, crear perfiles y gestionar información de jugadores
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full bg-transparent" disabled>
-                Gestionar Jugadores
+              <Button
+                onClick={() => router.push("/admin/players/new")}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                Crear Nuevo Jugador
               </Button>
-              <Button variant="outline" className="w-full bg-transparent" disabled>
-                Configuración del Sitio
+              <Button onClick={() => router.push("/admin/players")} variant="outline" className="w-full bg-transparent">
+                Gestionar Jugadores
               </Button>
             </CardContent>
           </Card>
