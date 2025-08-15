@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Phone, Mail, MapPin, Trophy, Star, Users, Award } from "lucide-react"
 import Link from "next/link"
+import LatestNews from "@/components/latest-news" // Import the LatestNews component
+import DynamicSquad from "@/components/dynamic-squad" // Import the DynamicSquad component
 
 export default function HomePage() {
   return (
@@ -28,8 +30,8 @@ export default function HomePage() {
               {[
                 { href: "#plantilla", text: "Plantilla" },
                 { href: "#categorias", text: "Categorías" },
-                { href: "#noticias", text: "Noticias" },
-                { href: "#historia", text: "Historia" },
+                { href: "/noticias", text: "Noticias" }, // Updated to /noticias
+                { href: "/historia", text: "Historia" },
                 { href: "#contacto", text: "Contacto" },
               ].map((item, index) => (
                 <Link
@@ -133,197 +135,8 @@ export default function HomePage() {
             <p className="text-muted-foreground text-lg">Conoce a los guerreros que defienden nuestros colores</p>
           </div>
 
-          {/* Campo de fútbol visual */}
-          <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-primary/10 rounded-xl p-8 mb-8 shadow-inner">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Porteros */}
-              <div className="text-center animate-slide-in-left">
-                <h3 className="font-bold text-lg mb-4 text-primary flex items-center justify-center gap-2">
-                  <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-                  Porteros
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Carlos Mendoza", number: "1" },
-                    { name: "Diego Ruiz", number: "12" },
-                  ].map((player, index) => (
-                    <Card
-                      key={player.number}
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105 animate-fade-in-up"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Badge
-                            variant="secondary"
-                            className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                          >
-                            {player.number}
-                          </Badge>
-                          <div className="flex-1 text-left">
-                            <p className="font-semibold group-hover:text-primary transition-colors">{player.name}</p>
-                            <p className="text-sm text-muted-foreground">Portero</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
-                          >
-                            <Link href={`/jugador/${player.number}`}>Ver Perfil</Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {/* Defensas */}
-              <div className="text-center animate-slide-in-up">
-                <h3 className="font-bold text-lg mb-4 text-primary flex items-center justify-center gap-2">
-                  <div
-                    className="w-3 h-3 bg-primary rounded-full animate-pulse"
-                    style={{ animationDelay: "200ms" }}
-                  ></div>
-                  Defensas
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Miguel Torres", number: "2" },
-                    { name: "Alejandro Silva", number: "3" },
-                    { name: "Roberto García", number: "4" },
-                    { name: "Fernando López", number: "5" },
-                  ].map((player, index) => (
-                    <Card
-                      key={player.number}
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105 animate-fade-in-up"
-                      style={{ animationDelay: `${index * 100 + 200}ms` }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Badge
-                            variant="secondary"
-                            className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                          >
-                            {player.number}
-                          </Badge>
-                          <div className="flex-1 text-left">
-                            <p className="font-semibold group-hover:text-primary transition-colors">{player.name}</p>
-                            <p className="text-sm text-muted-foreground">Defensa</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
-                          >
-                            <Link href={`/jugador/${player.number}`}>Ver Perfil</Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mediocampistas */}
-              <div className="text-center animate-slide-in-up">
-                <h3 className="font-bold text-lg mb-4 text-primary flex items-center justify-center gap-2">
-                  <div
-                    className="w-3 h-3 bg-primary rounded-full animate-pulse"
-                    style={{ animationDelay: "400ms" }}
-                  ></div>
-                  Mediocampo
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Juan Martínez", number: "6" },
-                    { name: "Luis Rodríguez", number: "8" },
-                    { name: "David Morales", number: "14" },
-                    { name: "Sergio Vázquez", number: "16" },
-                  ].map((player, index) => (
-                    <Card
-                      key={player.number}
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105 animate-fade-in-up"
-                      style={{ animationDelay: `${index * 100 + 400}ms` }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Badge
-                            variant="secondary"
-                            className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                          >
-                            {player.number}
-                          </Badge>
-                          <div className="flex-1 text-left">
-                            <p className="font-semibold group-hover:text-primary transition-colors">{player.name}</p>
-                            <p className="text-sm text-muted-foreground">Mediocampista</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
-                          >
-                            <Link href={`/jugador/${player.number}`}>Ver Perfil</Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {/* Delanteros */}
-              <div className="text-center animate-slide-in-right">
-                <h3 className="font-bold text-lg mb-4 text-primary flex items-center justify-center gap-2">
-                  <div
-                    className="w-3 h-3 bg-primary rounded-full animate-pulse"
-                    style={{ animationDelay: "600ms" }}
-                  ></div>
-                  Ataque
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Pedro Sánchez", number: "9" },
-                    { name: "Antonio Jiménez", number: "10" },
-                    { name: "Carlos Herrera", number: "11" },
-                    { name: "Manuel Castro", number: "7" },
-                  ].map((player, index) => (
-                    <Card
-                      key={player.number}
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105 animate-fade-in-up"
-                      style={{ animationDelay: `${index * 100 + 600}ms` }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Badge
-                            variant="secondary"
-                            className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                          >
-                            {player.number}
-                          </Badge>
-                          <div className="flex-1 text-left">
-                            <p className="font-semibold group-hover:text-primary transition-colors">{player.name}</p>
-                            <p className="text-sm text-muted-foreground">Delantero</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
-                          >
-                            <Link href={`/jugador/${player.number}`}>Ver Perfil</Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Dynamic Squad Component */}
+          <DynamicSquad />
         </div>
       </section>
 
@@ -429,55 +242,12 @@ export default function HomePage() {
             <p className="text-muted-foreground text-lg">Mantente al día con todo lo que pasa en Los Leones</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Victoria Contundente 3-0",
-                date: "15 Marzo 2024",
-                excerpt: "Los Leones dominaron el partido desde el primer minuto con una actuación brillante...",
-                category: "Resultados",
-              },
-              {
-                title: "Nuevo Fichaje: Marco Silva",
-                date: "12 Marzo 2024",
-                excerpt: "El mediocampista internacional se incorpora al equipo para reforzar la plantilla...",
-                category: "Fichajes",
-              },
-              {
-                title: "Entrenamiento Abierto",
-                date: "10 Marzo 2024",
-                excerpt: "Este sábado los aficionados podrán ver entrenar al equipo en el campo municipal...",
-                category: "Eventos",
-              },
-            ].map((news, index) => (
-              <Card
-                key={index}
-                className="hover:shadow-xl transition-all duration-300 group hover:scale-105 animate-fade-in-up"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge
-                      variant="outline"
-                      className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                    >
-                      {news.category}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">{news.date}</span>
-                  </div>
-                  <CardTitle className="group-hover:text-primary transition-colors">{news.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{news.excerpt}</p>
-                  <Button
-                    variant="outline"
-                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
-                  >
-                    Leer más
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+          <LatestNews />
+
+          <div className="text-center mt-8">
+            <Button asChild className="hover:scale-105 transition-all duration-300">
+              <Link href="/noticias">Ver todas las noticias</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -692,8 +462,8 @@ export default function HomePage() {
                 {[
                   { href: "#plantilla", text: "Plantilla" },
                   { href: "#categorias", text: "Categorías" },
-                  { href: "#noticias", text: "Noticias" },
-                  { href: "#historia", text: "Historia" },
+                  { href: "/noticias", text: "Noticias" }, // Updated to /noticias
+                  { href: "/historia", text: "Historia" },
                   { href: "#contacto", text: "Contacto" },
                   { href: "https://rfaf.es", text: "RFAF", external: true },
                 ].map((link, index) => (
