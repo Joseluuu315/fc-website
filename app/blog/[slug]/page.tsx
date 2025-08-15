@@ -14,6 +14,8 @@ interface BlogPost {
   excerpt: string
   slug: string
   published: boolean
+  coverImage?: string
+  additionalImages?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -124,6 +126,16 @@ export default function BlogPost() {
             </div>
           </header>
 
+          {post.coverImage && (
+            <div className="mb-8">
+              <img
+                src={post.coverImage || "/placeholder.svg"}
+                alt={post.title}
+                className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
+              />
+            </div>
+          )}
+
           {/* Article Content */}
           <Card className="shadow-lg">
             <CardContent className="p-8">
@@ -132,6 +144,23 @@ export default function BlogPost() {
               </div>
             </CardContent>
           </Card>
+
+          {post.additionalImages && post.additionalImages.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Galería de Imágenes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {post.additionalImages.map((image, index) => (
+                  <div key={index} className="group cursor-pointer">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`Imagen ${index + 1} del artículo`}
+                      className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-300"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Article Footer */}
           <footer className="mt-8 pt-8 border-t border-gray-200">
