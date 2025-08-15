@@ -354,6 +354,7 @@ La entrevista completa estará disponible en nuestro canal de YouTube la próxim
               </CardContent>
             </Card>
 
+            {/* 
             <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-200">
               <CardHeader>
                 <CardTitle className="text-green-800">Panel de Administración</CardTitle>
@@ -365,6 +366,7 @@ La entrevista completa estará disponible en nuestro canal de YouTube la próxim
                 </Button>
               </CardContent>
             </Card>
+            */}
           </div>
         </div>
       </div>
