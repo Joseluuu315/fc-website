@@ -8,16 +8,19 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Calendar, Clock } from "lucide-react"
 
 interface BlogPost {
-  id: string
-  title: string
-  content: string
-  excerpt: string
+  id: number
+  titulo: string
+  contenido: string
+  resumen: string
   slug: string
-  published: boolean
-  coverImage?: string
-  additionalImages?: string[]
-  createdAt: string
-  updatedAt: string
+  publicado: boolean
+  imagen_portada?: string
+  imagenes_adicionales?: string[]
+  created_at: string
+  updated_at: string
+  autor: string
+  categoria: string
+  tags: string[]
 }
 
 export default function BlogPost() {
@@ -28,14 +31,27 @@ export default function BlogPost() {
   const slug = params.slug as string
 
   useEffect(() => {
-    // Load posts from localStorage
-    const savedPosts = localStorage.getItem("blogPosts")
-    if (savedPosts) {
-      const posts: BlogPost[] = JSON.parse(savedPosts)
-      const foundPost = posts.find((p) => p.slug === slug && p.published)
-      setPost(foundPost || null)
+    const fetchPost = async () => {
+      try {
+        console.log("[v0] Fetching blog post with slug:", slug)
+        const response = await fetch(`/api/blog/${slug}`)
+        if (response.ok) {
+          const postData = await response.json()
+          console.log("[v0] Fetched blog post:", postData)
+          setPost(postData)
+        } else {
+          console.log("[v0] Blog post not found")
+          setPost(null)
+        }
+      } catch (error) {
+        console.error("[v0] Error fetching blog post:", error)
+        setPost(null)
+      } finally {
+        setLoading(false)
+      }
     }
-    setLoading(false)
+
+    fetchPost()
   }, [slug])
 
   if (loading) {
@@ -68,11 +84,20 @@ export default function BlogPost() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return "Fecha no disponible"
+      }
+      return date.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    } catch (error) {
+      console.error("[v0] Error formatting date:", error)
+      return "Fecha no disponible"
+    }
   }
 
   const estimateReadingTime = (content: string) => {
@@ -111,26 +136,27 @@ export default function BlogPost() {
           {/* Article Header */}
           <header className="mb-8">
             <div className="mb-4">
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Noticias del Club</Badge>
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">{post.categoria}</Badge>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">{post.title}</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">{post.titulo}</h1>
             <div className="flex items-center space-x-6 text-sm text-gray-600">
               <div className="flex items-center space-x-2">
                 <Calendar className="h-4 w-4" />
-                <span>{formatDate(post.createdAt)}</span>
+                <span>{formatDate(post.created_at)}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4" />
-                <span>{estimateReadingTime(post.content)} min de lectura</span>
+                <span>{estimateReadingTime(post.contenido)} min de lectura</span>
               </div>
+              <div className="text-sm text-gray-500">Por {post.autor}</div>
             </div>
           </header>
 
-          {post.coverImage && (
+          {post.imagen_portada && (
             <div className="mb-8">
               <img
-                src={post.coverImage || "/placeholder.svg"}
-                alt={post.title}
+                src={post.imagen_portada || "/placeholder.svg"}
+                alt={post.titulo}
                 className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
               />
             </div>
@@ -140,16 +166,16 @@ export default function BlogPost() {
           <Card className="shadow-lg">
             <CardContent className="p-8">
               <div className="prose prose-lg max-w-none">
-                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">{post.content}</div>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">{post.contenido}</div>
               </div>
             </CardContent>
           </Card>
 
-          {post.additionalImages && post.additionalImages.length > 0 && (
+          {post.imagenes_adicionales && post.imagenes_adicionales.length > 0 && (
             <div className="mt-8">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Galería de Imágenes</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {post.additionalImages.map((image, index) => (
+                {post.imagenes_adicionales.map((image, index) => (
                   <div key={index} className="group cursor-pointer">
                     <img
                       src={image || "/placeholder.svg"}
@@ -166,8 +192,8 @@ export default function BlogPost() {
           <footer className="mt-8 pt-8 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
-                <p>Publicado el {formatDate(post.createdAt)}</p>
-                {post.updatedAt !== post.createdAt && <p>Actualizado el {formatDate(post.updatedAt)}</p>}
+                <p>Publicado el {formatDate(post.created_at)}</p>
+                {post.updated_at !== post.created_at && <p>Actualizado el {formatDate(post.updated_at)}</p>}
               </div>
               <Button onClick={() => router.push("/noticias")} variant="outline" className="bg-transparent">
                 Ver más noticias
