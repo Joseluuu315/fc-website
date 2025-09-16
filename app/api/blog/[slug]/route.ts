@@ -4,14 +4,22 @@ import { createClient } from "@/lib/supabase/server"
 // GET - Obtener post por slug
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   try {
+    console.log("[v0] Fetching blog post with slug:", params.slug)
     const supabase = createClient()
 
-    const { data: post, error } = await supabase.from("blog_posts").select("*").eq("slug", params.slug).single()
+    const { data: post, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("slug", params.slug)
+      .eq("publicado", true)
+      .single()
 
     if (error || !post) {
+      console.log("[v0] Post not found or not published:", params.slug)
       return NextResponse.json({ error: "Post not found" }, { status: 404 })
     }
 
+    console.log("[v0] Successfully fetched blog post:", post.titulo)
     return NextResponse.json(post)
   } catch (error) {
     console.error("[v0] Error fetching blog post:", error)
@@ -35,8 +43,7 @@ export async function PUT(request: NextRequest, { params }: { params: { slug: st
         imagenes_adicionales: data.additionalImages || [],
         categoria: data.categoria || "General",
         tags: data.tags || [],
-        estado: data.published ? "publicado" : "borrador",
-        fecha_publicacion: data.published ? new Date().toISOString() : null,
+        publicado: data.published !== false,
         updated_at: new Date().toISOString(),
       })
       .eq("slug", params.slug)
