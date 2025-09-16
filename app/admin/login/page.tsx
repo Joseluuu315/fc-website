@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { setAuthentication } from "@/lib/auth"
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("")
@@ -22,13 +23,23 @@ export default function AdminLogin() {
     setIsLoading(true)
     setError("")
 
+    console.log("[v0] Login attempt with username:", username)
+
     // Simple authentication check
     if (username === "pedro" && password === "1234") {
-      // Set authentication in localStorage
-      localStorage.setItem("adminAuth", "true")
-      localStorage.setItem("adminUser", "pedro")
-      router.push("/admin/dashboard")
+      console.log("[v0] Credentials are correct, setting authentication...")
+
+      const authSuccess = setAuthentication(username)
+
+      if (authSuccess) {
+        console.log("[v0] Authentication set successfully, redirecting...")
+        router.push("/admin/dashboard")
+      } else {
+        console.log("[v0] Failed to set authentication")
+        setError("Error al iniciar sesión. Intenta de nuevo.")
+      }
     } else {
+      console.log("[v0] Incorrect credentials provided")
       setError("Credenciales incorrectas")
     }
 
