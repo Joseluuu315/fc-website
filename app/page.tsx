@@ -10,34 +10,30 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary via-primary/90 to-secondary text-primary-foreground py-4 sticky top-0 z-50 backdrop-blur-md bg-opacity-95 shadow-xl border-b border-white/10">
+      <header className="bg-green-600 text-white py-4 sticky top-0 z-50 backdrop-blur-md bg-opacity-95 shadow-xl border-b border-white/10">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 group">
-              <div className="w-14 h-14 bg-gradient-to-br from-white to-primary-foreground/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-2xl ring-2 ring-white/20">
-                <Trophy className="w-7 h-7 text-primary animate-pulse drop-shadow-lg" />
+              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-2xl ring-2 ring-white/20">
+                <Trophy className="w-7 h-7 text-green-600 animate-pulse drop-shadow-lg" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-primary-foreground to-white bg-clip-text text-transparent drop-shadow-sm">
-                  Club de Fútbol Los Leones
-                </h1>
-                <p className="text-primary-foreground/90 animate-fade-in text-sm font-medium">
-                  Pasión, Fuerza y Victoria
-                </p>
+                <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-sm">Club de Fútbol Los Leones</h1>
+                <p className="text-white animate-fade-in text-sm font-medium">Pasión, Fuerza y Victoria</p>
               </div>
             </div>
             <nav className="hidden md:flex gap-8">
               {[
                 { href: "#plantilla", text: "Plantilla" },
                 { href: "#categorias", text: "Categorías" },
-                { href: "/noticias", text: "Noticias" }, // Updated to /noticias
+                { href: "/noticias", text: "Noticias" },
                 { href: "/historia", text: "Historia" },
                 { href: "#contacto", text: "Contacto" },
               ].map((item, index) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="hover:text-white transition-all duration-300 hover:scale-105 relative group font-medium px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm"
+                  className="text-white hover:text-green-200 transition-all duration-300 hover:scale-105 relative group font-medium px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {item.text}
@@ -50,7 +46,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-secondary to-primary py-20 text-white">
+      <section className="relative overflow-hidden bg-green-700 py-20 text-white">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-float"></div>
           <div className="absolute top-32 right-20 w-16 h-16 bg-white rounded-full animate-float-delayed"></div>
@@ -60,10 +56,8 @@ export default function HomePage() {
 
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="animate-slide-up">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-primary-foreground to-white bg-clip-text text-transparent">
-              Bienvenidos a Los Leones
-            </h2>
-            <p className="text-xl md:text-2xl mb-8 text-white/90 animate-fade-in-delayed">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">Bienvenidos a Los Leones</h2>
+            <p className="text-xl md:text-2xl mb-8 text-white drop-shadow-md animate-fade-in-delayed">
               Más que un club, somos una familia unida por la pasión del fútbol
             </p>
           </div>
@@ -83,7 +77,7 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="bg-white/10 border-white text-white hover:bg-white hover:text-primary group hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm"
+              className="bg-white text-green-700 border-white hover:bg-white/90 hover:text-green-800 group hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               asChild
             >
               <Link href="#contacto" className="flex items-center gap-2">
@@ -446,7 +440,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-primary via-secondary to-primary text-primary-foreground py-8">
+      <footer className="bg-green-600 text-white py-8">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="animate-fade-in-up">
@@ -454,15 +448,15 @@ export default function HomePage() {
                 <Trophy className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
                 <h3 className="text-lg font-bold">Los Leones FC</h3>
               </div>
-              <p className="text-primary-foreground/80">Formando campeones dentro y fuera del campo desde 1985.</p>
+              <p className="text-white">Formando campeones dentro y fuera del campo desde 1985.</p>
             </div>
             <div className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
               <h4 className="font-semibold mb-4">Enlaces Rápidos</h4>
-              <ul className="space-y-2 text-primary-foreground/80">
+              <ul className="space-y-2 text-white">
                 {[
                   { href: "#plantilla", text: "Plantilla" },
                   { href: "#categorias", text: "Categorías" },
-                  { href: "/noticias", text: "Noticias" }, // Updated to /noticias
+                  { href: "/noticias", text: "Noticias" },
                   { href: "/historia", text: "Historia" },
                   { href: "#contacto", text: "Contacto" },
                   { href: "https://rfaf.es", text: "RFAF", external: true },
@@ -473,14 +467,14 @@ export default function HomePage() {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-primary-foreground transition-colors duration-300 hover:translate-x-1 inline-block"
+                        className="text-white hover:text-green-200 transition-colors duration-300 hover:translate-x-1 inline-block"
                       >
                         {link.text}
                       </a>
                     ) : (
                       <Link
                         href={link.href}
-                        className="hover:text-primary-foreground transition-colors duration-300 hover:translate-x-1 inline-block"
+                        className="text-white hover:text-green-200 transition-colors duration-300 hover:translate-x-1 inline-block"
                       >
                         {link.text}
                       </Link>
@@ -497,7 +491,7 @@ export default function HomePage() {
                     key={social}
                     size="sm"
                     variant="secondary"
-                    className="hover:scale-110 transition-all duration-300 hover:bg-primary-foreground hover:text-primary"
+                    className="hover:scale-110 transition-all duration-300 hover:bg-white hover:text-green-600"
                     style={{ animationDelay: `${index * 100 + 500}ms` }}
                   >
                     {social}
@@ -507,7 +501,7 @@ export default function HomePage() {
             </div>
           </div>
           <div
-            className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-primary-foreground/80 animate-fade-in-up"
+            className="border-t border-white/20 mt-8 pt-8 text-center text-white animate-fade-in-up"
             style={{ animationDelay: "600ms" }}
           >
             <p>&copy; 2024 Los Leones FC. Todos los derechos reservados.</p>
