@@ -6,12 +6,14 @@ import { isAuthenticated, getAdminUser, logout } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PlusCircle, FileText, Users, LogOut, BarChart3 } from "lucide-react"
+import { PlusCircle, FileText, Users, LogOut, BarChart3, Calendar, Trophy } from "lucide-react"
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<string | null>(null)
   const [posts, setPosts] = useState<any[]>([])
   const [players, setPlayers] = useState<any[]>([])
+  const [proximosPartidos, setProximosPartidos] = useState<any[]>([])
+  const [ultimosResultados, setUltimosResultados] = useState<any[]>([])
   const [visitStats, setVisitStats] = useState({
     visits_this_month: 0,
     visits_today: 0,
@@ -20,11 +22,18 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   useEffect(() => {
+    console.log("[v0] Dashboard useEffect running...")
+    console.log("[v0] isAuthenticated():", isAuthenticated())
+    console.log("[v0] localStorage adminAuth:", localStorage.getItem("adminAuth"))
+    console.log("[v0] localStorage adminUser:", localStorage.getItem("adminUser"))
+
     if (!isAuthenticated()) {
+      console.log("[v0] User not authenticated, redirecting to login...")
       router.push("/admin/login")
       return
     }
 
+    console.log("[v0] User is authenticated, setting user...")
     setUser(getAdminUser())
 
     const fetchData = async () => {
@@ -41,6 +50,18 @@ export default function AdminDashboard() {
         if (playersResponse.ok) {
           const playersData = await playersResponse.json()
           setPlayers(playersData)
+        }
+
+        const partidosResponse = await fetch("/api/partidos")
+        if (partidosResponse.ok) {
+          const partidosData = await partidosResponse.json()
+          setProximosPartidos(partidosData)
+        }
+
+        const resultadosResponse = await fetch("/api/resultados")
+        if (resultadosResponse.ok) {
+          const resultadosData = await resultadosResponse.json()
+          setUltimosResultados(resultadosData)
         }
 
         // Obtener estadísticas de visitas
@@ -97,7 +118,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Posts Publicados</CardTitle>
@@ -122,6 +143,17 @@ export default function AdminDashboard() {
 
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Próximos Partidos</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">{proximosPartidos.length}</div>
+              <p className="text-xs text-muted-foreground">Partidos programados</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Visitas</CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -137,7 +169,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -178,6 +210,38 @@ export default function AdminDashboard() {
               </Button>
               <Button onClick={() => router.push("/admin/players")} variant="outline" className="w-full bg-transparent">
                 Gestionar Jugadores
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Trophy className="h-5 w-5 text-orange-600" />
+                <span>Gestión de Partidos</span>
+              </CardTitle>
+              <CardDescription>Administrar próximos partidos y registrar resultados de encuentros</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                onClick={() => router.push("/admin/partidos/new")}
+                className="w-full bg-orange-600 hover:bg-orange-700"
+              >
+                Crear Nuevo Partido
+              </Button>
+              <Button
+                onClick={() => router.push("/admin/partidos")}
+                variant="outline"
+                className="w-full bg-transparent"
+              >
+                Gestionar Partidos
+              </Button>
+              <Button
+                onClick={() => router.push("/admin/resultados")}
+                variant="outline"
+                className="w-full bg-transparent"
+              >
+                Gestionar Resultados
               </Button>
             </CardContent>
           </Card>
