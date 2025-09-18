@@ -1,20 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { createServerClient } from "@/lib/supabase/server"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
-    const partido = await sql`
-      SELECT * FROM proximos_partidos WHERE id = ${id}
-    `
+    const supabase = createServerClient()
 
-    if (partido.length === 0) {
+    const { data: partido, error } = await supabase.from("proximos_partidos").select("*").eq("id", id).single()
+
+    if (error) {
+      console.error("[v0] Supabase error fetching partido:", error)
       return NextResponse.json({ error: "Partido no encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json(partido[0])
+    return NextResponse.json(partido)
   } catch (error) {
     console.error("[v0] Error fetching partido:", error)
     return NextResponse.json({ error: "Error fetching partido" }, { status: 500 })
@@ -31,19 +30,28 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 })
     }
 
-    const result = await sql`
-      UPDATE proximos_partidos 
-      SET rival = ${rival}, fecha = ${fecha}, hora = ${hora}, local = ${local}, 
-          competicion = ${competicion || "Liga"}, estadio = ${estadio || null}
-      WHERE id = ${id}
-      RETURNING *
-    `
+    const supabase = createServerClient()
 
-    if (result.length === 0) {
+    const { data: partido, error } = await supabase
+      .from("proximos_partidos")
+      .update({
+        rival,
+        fecha,
+        hora,
+        local: local ?? true,
+        competicion: competicion || "Liga",
+        estadio: estadio || null,
+      })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("[v0] Supabase error updating partido:", error)
       return NextResponse.json({ error: "Partido no encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json(result[0])
+    return NextResponse.json(partido)
   } catch (error) {
     console.error("[v0] Error updating partido:", error)
     return NextResponse.json({ error: "Error updating partido" }, { status: 500 })
@@ -53,12 +61,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
-    const result = await sql`
-      DELETE FROM proximos_partidos WHERE id = ${id}
-      RETURNING *
-    `
+    const supabase = createServerClient()
 
-    if (result.length === 0) {
+    const { error } = await supabase.from("proximos_partidos").delete().eq("id", id)
+
+    if (error) {
+      console.error("[v0] Supabase error deleting partido:", error)
       return NextResponse.json({ error: "Partido no encontrado" }, { status: 404 })
     }
 
