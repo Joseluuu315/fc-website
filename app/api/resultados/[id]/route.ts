@@ -1,20 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { createServerClient } from "@/lib/supabase/server"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
-    const resultado = await sql`
-      SELECT * FROM ultimos_resultados WHERE id = ${id}
-    `
+    const supabase = createServerClient()
 
-    if (resultado.length === 0) {
+    const { data: resultado, error } = await supabase.from("ultimos_resultados").select("*").eq("id", id).single()
+
+    if (error) {
+      console.error("[v0] Supabase error fetching resultado:", error)
       return NextResponse.json({ error: "Resultado no encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json(resultado[0])
+    return NextResponse.json(resultado)
   } catch (error) {
     console.error("[v0] Error fetching resultado:", error)
     return NextResponse.json({ error: "Error fetching resultado" }, { status: 500 })
@@ -31,20 +30,29 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 })
     }
 
-    const result = await sql`
-      UPDATE ultimos_resultados 
-      SET rival = ${rival}, fecha = ${fecha}, goles_favor = ${goles_favor}, 
-          goles_contra = ${goles_contra}, local = ${local}, 
-          competicion = ${competicion || "Liga"}, estadio = ${estadio || null}
-      WHERE id = ${id}
-      RETURNING *
-    `
+    const supabase = createServerClient()
 
-    if (result.length === 0) {
+    const { data: resultado, error } = await supabase
+      .from("ultimos_resultados")
+      .update({
+        rival,
+        fecha,
+        goles_favor,
+        goles_contra,
+        local: local ?? true,
+        competicion: competicion || "Liga",
+        estadio: estadio || null,
+      })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("[v0] Supabase error updating resultado:", error)
       return NextResponse.json({ error: "Resultado no encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json(result[0])
+    return NextResponse.json(resultado)
   } catch (error) {
     console.error("[v0] Error updating resultado:", error)
     return NextResponse.json({ error: "Error updating resultado" }, { status: 500 })
@@ -54,12 +62,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
-    const result = await sql`
-      DELETE FROM ultimos_resultados WHERE id = ${id}
-      RETURNING *
-    `
+    const supabase = createServerClient()
 
-    if (result.length === 0) {
+    const { error } = await supabase.from("ultimos_resultados").delete().eq("id", id)
+
+    if (error) {
+      console.error("[v0] Supabase error deleting resultado:", error)
       return NextResponse.json({ error: "Resultado no encontrado" }, { status: 404 })
     }
 
