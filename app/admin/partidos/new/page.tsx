@@ -28,6 +28,8 @@ export default function NewPartido() {
     setLoading(true)
 
     try {
+      console.log("[v0] Submitting partido form with data:", formData)
+
       const response = await fetch("/api/partidos", {
         method: "POST",
         headers: {
@@ -36,10 +38,17 @@ export default function NewPartido() {
         body: JSON.stringify(formData),
       })
 
+      console.log("[v0] API response status:", response.status)
+      console.log("[v0] API response ok:", response.ok)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log("[v0] Successfully created partido:", result)
         router.push("/admin/partidos")
       } else {
-        alert("Error al crear el partido")
+        const errorData = await response.json()
+        console.log("[v0] API error response:", errorData)
+        alert(`Error al crear el partido: ${errorData.error || "Error desconocido"}`)
       }
     } catch (error) {
       console.log("[v0] Error creating partido:", error)
